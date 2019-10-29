@@ -2,6 +2,7 @@
 using BlogsConsole.Models;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace BlogsConsole
 {
@@ -13,25 +14,124 @@ namespace BlogsConsole
             logger.Info("Program started");
             try
             {
-
-                // Create and save a new Blog
-                Console.Write("Enter a name for a new Blog: ");
-                var name = Console.ReadLine();
-
-                var blog = new Blog { Name = name };
-
+                string loopFlag = "1";
+                string blogFlag;
+                string userInput;
                 var db = new BloggingContext();
-                db.AddBlog(blog);
-                logger.Info("Blog added - {name}", name);
-
-                // Display all Blogs from the database
-                var query = db.Blogs.OrderBy(b => b.Name);
-
-                Console.WriteLine("All blogs in the database:");
-                foreach (var item in query)
+                //loop through choices until user is done
+                while (loopFlag == "1" || loopFlag == "2" || loopFlag == "3" || loopFlag == "4")
                 {
-                    Console.WriteLine(item.Name);
+                    //choices
+                    Console.WriteLine("1) Display all blogs");
+                    Console.WriteLine("2) Add Blog");
+                    Console.WriteLine("3) Create Post");
+                    Console.WriteLine("4) Display Posts");
+
+                    loopFlag = Console.ReadLine();
+
+                    //int for lableing purposes
+                    int num = 1;
+
+                    //"Display all blogs"
+                    if (loopFlag == "1") {
+                        // Display all Blogs from the database
+                        var query = db.Blogs.OrderBy(b => b.Name);
+
+                        Console.WriteLine("All blogs in the database:");
+                        foreach (var item in query)
+                        {
+                            
+                            Console.WriteLine(item.Name);
+                        }
+                    }
+                    //"Add blog
+                    else if(loopFlag == "2")
+                    {
+                        // Create and save a new Blog
+                        Console.Write("Enter a name for a new Blog: ");
+                        var name = Console.ReadLine();
+
+                        var blog = new Blog { Name = name };
+
+
+                        db.AddBlog(blog);
+                        logger.Info("Blog added - {name}", name);
+                    }
+                    //"Create Post"
+                    else if(loopFlag == "3")
+                    {
+                        
+                        var query = db.Blogs.OrderBy(b => b.Name);
+
+                        Console.WriteLine("All blogs in the database:");
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine(num + ")" + item.Name);
+                            num++;
+                        }
+                        //return lable to 0 so it can be used later
+                        num = 0;
+                        //desired search method
+                        Console.WriteLine("Enter Desired Blog Name");
+                        
+                        userInput = Console.ReadLine();
+
+
+                        //TODO verification and case sensitivity 
+                        //connect to the desired blog
+                        var blog = db.Blogs.FirstOrDefault(b => b.Name == userInput);
+                            
+                            
+
+                        //create the post to hold the info
+                        var post = new Post();
+
+                        //collect the desired info
+                        Console.WriteLine("Title: ");
+                        userInput = Console.ReadLine();
+
+                        post.Title = userInput;
+
+                        Console.WriteLine("Content: ");
+                        userInput = Console.ReadLine();
+
+                        post.Content = userInput;
+                        post.BlogId = blog.BlogId;
+
+                        //add post to blog
+                        db.AddPost(post);
+
+                    }
+                    //DisplayPosts
+                    else if(loopFlag == "4"){
+                        //ask what posts they would like to see
+                        Console.WriteLine("0) Posts from all blogs");
+
+                        //display blog options for posts
+                        var query = db.Blogs.OrderBy(b => b.Name);
+
+                        //var blog = db.Blogs.FirstOrDefault(b => b.Name == userInput);
+
+                        //Console.WriteLine("All blogs in the database:");
+                        //foreach (var item in query)
+                        //{
+                            
+                          //  Console.WriteLine(item.Name);
+                        //}
+
+                    }
+
+
+                    
+
+
                 }
+
+                
+
+               
+
+                
             }
             catch (Exception ex)
             {
