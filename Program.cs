@@ -15,7 +15,7 @@ namespace BlogsConsole
             try
             {
                 string loopFlag = "1";
-                string blogFlag;
+                string postSearch;
                 string userInput;
                 var db = new BloggingContext();
                 //loop through choices until user is done
@@ -75,11 +75,28 @@ namespace BlogsConsole
                         Console.WriteLine("Enter Desired Blog Name");
                         
                         userInput = Console.ReadLine();
+                        userInput = userInput.ToLower();
 
+                        //check if user selection exists
+                        //if not or if they didnt enter anything ask again
+                        var blogExists = db.Blogs.Any(b => b.Name.ToLower() == userInput);
 
-                        //TODO verification and case sensitivity 
+                        while (userInput == null || !blogExists) {
+                            Console.WriteLine("Sorry that blog does not exist please try again");
+                            Console.WriteLine("Desired Blog Name");
+                            userInput = Console.ReadLine();
+                            userInput = userInput.ToLower();
+
+                            //check if user selection exists
+                            //if not or if they didnt enter anything ask again
+                            blogExists = db.Blogs.Any(b => b.Name.ToLower() == userInput);
+                            
+                        }
+
+                        //TODO verification
                         //connect to the desired blog
-                        var blog = db.Blogs.FirstOrDefault(b => b.Name == userInput);
+                        var blog = db.Blogs.FirstOrDefault(b => b.Name.ToLower() == userInput);
+                        
                             
                             
 
@@ -104,20 +121,104 @@ namespace BlogsConsole
                     }
                     //DisplayPosts
                     else if(loopFlag == "4"){
+
+                        Console.WriteLine("Enter name of blog or 'ALL' to see all posts");
                         //ask what posts they would like to see
                         Console.WriteLine("0) Posts from all blogs");
 
                         //display blog options for posts
                         var query = db.Blogs.OrderBy(b => b.Name);
+                        foreach (var item in query)
+                        {
+                            Console.WriteLine(num + ") Posts from " + item.Name);
+                            num++;
+                        }
+                        num = 0;
 
-                        //var blog = db.Blogs.FirstOrDefault(b => b.Name == userInput);
+                        //blog(s) user wants posts from
+                        userInput = Console.ReadLine().ToLower();
+
+                        
+
+                        //check if user selection exists
+                        //if not or if they didnt enter anything ask again
+                        var blogExists = db.Blogs.Any(b => b.Name.ToLower() == userInput);
+
+                        while (!blogExists && !(userInput == "all"))
+                        {
+                            Console.WriteLine("Sorry that blog does not exist please try again");
+                            Console.WriteLine("Desired Blog Name");
+                            userInput = Console.ReadLine();
+                            userInput = userInput.ToLower();
+
+                            //check if user selection exists
+                            //if not or if they didnt enter anything ask again
+                            blogExists = db.Blogs.Any(b => b.Name.ToLower() == userInput);
+
+                        }
+
+                        //if user wants all posts
+                        if (userInput == "all")
+                        {
+                            
+                            var postQuery = db.Posts.OrderBy(p => p.BlogId);
+                            foreach(var item in postQuery)
+                            {
+                                Console.WriteLine(num + ") " + item.Title);
+                                Console.WriteLine(item.Content);
+                                num++;
+                            }
+
+                           
+                        }
+                        //if user wants posts from specific blog
+                        else
+                        {
+                            var chosenBlog = db.Blogs.Where(b => b.Name == userInput).ToList();
+                            int blogID = 0;
+                            //get blog id to find appropriate posts
+                            foreach(var blog in chosenBlog)
+                            {
+                                blogID = blog.BlogId;
+                            }
+
+                            var desiredPosts = db.Posts.Where(p => p.BlogId == blogID);
+                            //display posts
+                            foreach(var item in desiredPosts)
+                            {
+                                Console.WriteLine(num + ") " + item.Title);
+                                Console.WriteLine(item.Content);
+                                num++;
+                            }
+                            num = 0;
+                        }
+
+
+
+
+
+                        //still need to post what was selected
+
+
+
+                        //var query = db.Blogs.OrderBy(b => b.Name);
 
                         //Console.WriteLine("All blogs in the database:");
                         //foreach (var item in query)
                         //{
-                            
+
                           //  Console.WriteLine(item.Name);
                         //}
+
+
+
+
+
+
+
+
+
+
 
                     }
 
